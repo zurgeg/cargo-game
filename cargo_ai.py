@@ -71,7 +71,10 @@ class CargoEnv(gym.Env):
         # Map the action (element of {0,1,2,3}) to the direction we walk in
         can_move_there = self._action_to_direction[action]()
         # An episode is done iff the agent has reached the target
-        reward = 1 if self._game.on_node else 0  # Binary sparse rewards
+        reward = 1 if self._game.truck.make_new else 0  # Binary sparse rewards
+        if self._game.truck.make_new:
+            print("Agent scored!")
+            print("Score:", self._game.truck.delivered)
         observation = self._get_obs()
         info = self._get_info()
         self._game.update_board()

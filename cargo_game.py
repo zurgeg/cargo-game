@@ -174,11 +174,12 @@ def generate_thingy(board):
     while True:
         x = randint(0, 8)   
         y = randint(0, 8)   
-        if not board[x][y]:
-            return (x,y)
+        if not [x,y] in node_locs or [x,y] == [0, 0]:
+            return (y,x)
 
 class Game:
     def __init__(self):
+        self.truck = Truck()
         self.regen_board()
     def regen_board(self):
         nodes = []
@@ -186,8 +187,10 @@ class Game:
         dests = []
         sources = []
         points = []
-        self.truck = Truck()
+        self.truck.cargo = None
+        self.truck.make_new = False
         self.on_node = False
+        self.truck.pos = [0,0]
         self.truck.game = self
         self.board = [
             [self.truck, None, None, None, None, None, None, None, None],
@@ -203,12 +206,12 @@ class Game:
         
         for _ in range(3):
             node_loc = generate_thingy(self.board)
-            self.board[node_loc[X]][node_loc[Y]] = Node(is_point=True, is_source=False, location=node_loc, id="A")
+            self.board[node_loc[X]][node_loc[Y]] = Node(is_point=True, is_source=False, location=node_loc, id=choice(string.ascii_uppercase[:6]))
         for _ in range(3):
             node_loc = generate_thingy(self.board)
-            self.board[node_loc[X]][node_loc[Y]] = Node(is_dest=True, is_source=False, location=node_loc, id=1)
+            self.board[node_loc[X]][node_loc[Y]] = Node(is_dest=True, is_source=False, location=node_loc, id=randint(1,3))
             node_loc = generate_thingy(self.board)
-            self.board[node_loc[X]][node_loc[Y]] = Node(is_source=True, location=node_loc)
+            self.board[node_loc[X]][node_loc[Y]] = Node(is_source=True, location=node_loc, id=choice(string.ascii_uppercase[7:]))
     def update_board(self):
         # Moves the truck
         #line = 0
@@ -251,11 +254,15 @@ if __name__ == "__main__":
                     print(item.id, end="")
             print("|")
         print("-----------")
+        print("Score:", g.truck.delivered)
         print("Fuel:", g.truck.fuel, "/ 100")
         if g.truck._cargo:
             print("Cargo:", g.truck._cargo._left_to_go)
         while True:
-            direction = input("(U)p/(D)own/(L)eft/(R)ight").lower()[0]
+            try:
+                direction = input("(U)p/(D)own/(L)eft/(R)ight").lower()[0]
+            except IndexError:
+                continue
             try:
                 valid_move = movement[direction]()
             except KeyError:
@@ -284,3 +291,25 @@ def log_board(board):
         board_log.write("|\n")
     board_log.write("-----------\n")
     #print("Fuel:", g.truck.fuel, "/ 100")
+
+def gen_till_crash(stop_at):
+    # For debugging purposes
+    # Continually generates nodes
+    # Until an error occurs
+    board = [
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None],
+        [None, None, None, None, None, None, None, None, None]
+    ]
+    for _ in range(stop_at):
+        node_locs = []
+        for _ in range(9 * 9):
+            node_loc = generate_thingy(board)
+            print(node_loc)
+            board[node_loc[Y]][node_loc[X]] = Node(is_point=True, is_source=False, location=node_loc, id=choice(string.ascii_uppercase[:6]))
