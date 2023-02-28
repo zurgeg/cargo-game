@@ -27,6 +27,8 @@ Y = 1
 
 old_truck_object = [0, 0]
 
+is_ai = False
+
 def gen_cargo():
     cargo_points = []
     num_points = randint(1, 3)
@@ -122,7 +124,8 @@ class Truck:
             node = nodes[node_locs.index(new_pos)]
             if node.is_source:
                 if self._cargo:
-                    print("You have cargo, and can not move onto this source.")
+                    if not is_ai:
+                        print("You have cargo, and can not move onto this source.")
                     return False # We can't pick up new cargo without dropping ours
                 else:
                     self._cargo = node.take_cargo()
@@ -142,13 +145,15 @@ class Truck:
                             self.game.on_node = True
                             self.game.board[old_pos[Y]][old_pos[X]] = nodes[node_locs.index(old_pos)]
                     else:
-                        print("This is an invalid location for your cargo.")
+                        if not is_ai:
+                            print("This is an invalid location for your cargo.")
                     return did_drop
                 elif node.is_point and node._cargo:
                     # Take cargo from the node
                     self._cargo = node.take_cargo()
                 else:
-                    print("You need cargo to move to this node")
+                    if not is_ai:
+                        print("You need cargo to move to this node")
                     return False # We need to put cargo down to move onto this node
             self.fuel -= 1
             old_pos = copy.copy(self.pos)
@@ -168,14 +173,17 @@ class Truck:
                 self.game.board[old_pos[Y]][old_pos[X]] = nodes[node_locs.index(old_pos)]
             return True
         else:
-            print("Position is off the board", new_pos)
+            if not is_ai:
+                print("Position is off the board", new_pos)
             return False
 def generate_thingy(board):
     while True:
         x = randint(0, 8)   
         y = randint(0, 8)   
-        if not [x,y] in node_locs or [x,y] == [0, 0]:
-            return (y,x)
+        print(x,y)
+        print(node_locs)
+        if not [y,x] in node_locs and not [x,y] == [0, 0]:
+            return (x, y)
 
 class Game:
     def __init__(self):
@@ -279,6 +287,9 @@ if __name__ == "__main__":
     
 
 def log_board(board):
+    global board_log # I am so sorry
+    if board_log.closed:
+        board_log = open("board.log", "a") # reopen log
     for line in board:
         board_log.write("|")
         for item in line:
@@ -292,10 +303,26 @@ def log_board(board):
     board_log.write("-----------\n")
     #print("Fuel:", g.truck.fuel, "/ 100")
 
+def expiremental_board_print(board):
+    clear = "\033[2J\033[H"
+    print(clear, end="")
+    for line in board:
+        print("|", end="")
+        for item in line:
+            if item == None:
+                print("-", end="")
+            elif type(item) == Truck:
+                print("@", end="")
+            else:
+                print(str(item.id), end="")
+        print("|")
+
+
 def gen_till_crash(stop_at):
     # For debugging purposes
     # Continually generates nodes
     # Until an error occurs
+    global node_locs
     board = [
         [None, None, None, None, None, None, None, None, None],
         [None, None, None, None, None, None, None, None, None],

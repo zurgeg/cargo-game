@@ -5,6 +5,8 @@ import cargo_game
 import gymnasium as gym
 from gymnasium import spaces
 
+from time import sleep
+
 
 class CargoEnv(gym.Env):
     metadata = {"render_modes": [], "render_fps": 4}
@@ -49,6 +51,7 @@ class CargoEnv(gym.Env):
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
+        self._game.regen_board()
 
         # Choose the agent's location uniformly at random
         #self._agent_location = self.np_random.integers(0, self.size, size=2, dtype=int)
@@ -78,9 +81,10 @@ class CargoEnv(gym.Env):
         observation = self._get_obs()
         info = self._get_info()
         self._game.update_board()
-        cargo_game.log_board(self._game.board)
+        cargo_game.expiremental_board_print(self._game.board)
+        sleep(0.1)
 
-        return observation, reward, self._game.truck.make_new, self._game.truck.fuel_out, info
+        return observation, reward, self._game.truck.make_new or self._game.truck.fuel_out, self._game.truck.fuel_out, info
     def render(self):
         pass # ???
     def close(self):

@@ -12,10 +12,12 @@ env = make(
     id="CargoGame/Cargo-v0"
 )
 observation, info = env.reset()
-for _ in range(10):
-    action = env.action_space.sample()  # agent policy that uses the observation and info
-    observation, reward, terminated, truncated, info = env.step(action)
+for _ in range(1000):
+    while True:
+        action = env.action_space.sample()  # agent policy that uses the observation and info
+        observation, reward, terminated, truncated, info = env.step(action)
 
-    if terminated or truncated:
-        observation, info = env.reset()
-cargo_game.board_log.close()
+        if terminated or truncated:
+            observation, info = env.reset()
+            break
+    cargo_game.board_log.close()
