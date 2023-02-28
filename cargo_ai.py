@@ -51,6 +51,10 @@ class CargoEnv(gym.Env):
     def reset(self, seed=None, options=None):
         # We need the following line to seed self.np_random
         super().reset(seed=seed)
+        if self._game.truck.fuel_out:
+            # Refuel truck
+            self._game.truck.fuel_out = False
+            self._game.truck.fuel = 100
         self._game.regen_board()
 
         # Choose the agent's location uniformly at random

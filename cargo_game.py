@@ -190,6 +190,7 @@ class Game:
         self.truck = Truck()
         self.regen_board()
     def regen_board(self):
+        global nodes, node_locs, dests, sources, points # TODO: make a game state class
         nodes = []
         node_locs = []
         dests = []
