@@ -180,8 +180,8 @@ def generate_thingy(board):
     while True:
         x = randint(0, 8)   
         y = randint(0, 8)   
-        print(x,y)
-        print(node_locs)
+        #print(x,y)
+        #print(node_locs)
         if not [y,x] in node_locs and not [x,y] == [0, 0]:
             return (x, y)
 
